@@ -4,9 +4,6 @@
   "readme": "",
   "repository": "",
   "version": "0.0.0",
-  "readme": "",
-  "repository": "",
-  
   "devDependencies": {
     "bower": "*",
     "gulp": "*",
@@ -29,10 +26,13 @@
     "watchify": "*",
     "gulp-if": "*"
   },
-
   "scripts": {
     "post-install": "node ./node_modules/bower/bin/bower install",
     "start": "node ./node_modules/gulp/bin/gulp.js",
     "build": "node ./node_modules/gulp/bin/gulp.js build"
+  },
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.2.0"
   }
 }

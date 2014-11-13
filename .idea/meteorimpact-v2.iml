@@ -7,5 +7,7 @@
     <orderEntry type="library" name="meteorimpact-v2 node_modules" level="project" />
     <orderEntry type="library" name="browserify-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="phaser-official" level="project" />
+    <orderEntry type="library" name="express-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="Node.js v0.10.25 Core Modules" level="application" />
   </component>
 </module>
