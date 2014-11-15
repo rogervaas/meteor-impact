@@ -12,7 +12,6 @@ Game.prototype = {
   create: function () {
 
     this.setConfig();
-    this.setInput();
     this.setPlayers();
     this.setMeteors();
 
@@ -21,6 +20,7 @@ Game.prototype = {
   update: function () {
 
     this.game.physics.arcade.collide(this.players, this.meteors);
+    this.game.physics.arcade.collide(this.players, this.players);
     this.game.physics.arcade.collide(this.meteors, this.meteors);
 
     this.meteors.forEachAlive(function (child) {
@@ -36,20 +36,6 @@ Game.prototype = {
         child.y = 0;
       }
     }, this.game);
-
-    for (var b = 0; b < this.players.length; b++) {
-      this.screenWrap(this.players[b], this.game);
-    }
-
-    if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP) && (this.players[0].angle > -45 && this.players[0].angle < 45)) {
-      spaceBackground.tilePosition.x -= 2;
-    } else if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP) && (this.players[0].angle > -145 && this.players[0].angle < -45)){
-      spaceBackground.tilePosition.y += 2;
-    } else if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP) && (this.players[0].angle < -145 || this.players[0].angle > 145)) {
-      spaceBackground.tilePosition.x += 2;
-    } else if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP) && (this.players[0].angle > 45 && this.players[0].angle < 145)) {
-      spaceBackground.tilePosition.y -= 2;
-    }
 
   },
 
@@ -68,42 +54,58 @@ Game.prototype = {
   },
 
   setConfig : function () {
-
-    spaceBackground = this.game.add.tileSprite(0, 0,
-        screen.width,
-        screen.height,
-        Utils.backgrounds[Utils.randomNumber(0,3)]);
-
+    this.game.add.tileSprite(0, 0, screen.width, screen.height, Utils.backgrounds[Utils.randomNumber(0,3)]);
     this.game.renderer.clearBeforeRender = false;
     this.game.renderer.roundPixels = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
   },
 
-  setInput : function () {
-    this.game.input.keyboard.addKeyCapture([
-      Phaser.Keyboard.LEFT,
-      Phaser.Keyboard.RIGHT,
-      Phaser.Keyboard.UP,
-      Phaser.Keyboard.DOWN,
-      Phaser.Keyboard.SPACEBAR
-    ]);
-  },
+  // Disable the input taken from the keyboard since this is not a feature
+  //setInput : function () {
+  //  this.game.input.keyboard.addKeyCapture([
+  //    Phaser.Keyboard.LEFT,
+  //    Phaser.Keyboard.RIGHT,
+  //    Phaser.Keyboard.UP,
+  //    Phaser.Keyboard.DOWN,
+  //    Phaser.Keyboard.SPACEBAR
+  //  ]);
+  //},
 
   setPlayers : function () {
-    this.players.push(new Player("spaceship",this.game, this.game.world.randomX, this.game.world.randomY));
+    var that = this;
+
+    Sockets.on("client new player", function (data) {
+      that.players.push(new Player({
+        playerId : data.id,
+        sprite : "spaceship",
+        game : that.game,
+        x : that.game.world.randomX,
+        y : that.game.world.randomY
+      }));
+    });
+
+    Sockets.on("client disconnected", function (data) {
+      for (var i = 0; i < that.players.length; i++) {
+        if (that.players[i].playerId === data.id) {
+          console.log(that.players);
+          that.players[i].kill();
+          that.players.splice(i, 1);
+        }
+      }
+    });
 
     for (var i = 0; i < this.players.length; i++) {
-      this.players[i].health = 100;
+      that.players[i].health = 100;
     }
   },
 
   setMeteors : function () {
+
     this.meteors = this.game.add.group();
     this.meteors.enableBody = true;
     this.meteors.physicsBodyType = Phaser.Physics.ARCADE;
 
-    for (var i= 0; i < this.game.rnd.between(1,2); i++) {
+    for (var i = 0; i < this.game.rnd.between(1,2); i++) {
       var MeteorBrownBigOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_big1");
       var MeteorBrownBigTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_big2");
       var MeteorBrownBigThree = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_big3");
@@ -114,14 +116,14 @@ Game.prototype = {
       var MeteorGrayBigFour = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_big1");
     }
 
-    for (var i= 0; i < this.game.rnd.between(1,3); i++) {
+    for (var i = 0; i < this.game.rnd.between(1,3); i++) {
       var MeteorBrownMediumOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_med1");
       var MeteorBrownMediumTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_med3");
       var MeteorGrayMediumOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_med1");
       var MeteorGrayMediumTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_med2");
     }
 
-    for (var i= 0; i < this.game.rnd.between(1,4); i++) {
+    for (var i = 0; i < this.game.rnd.between(1,4); i++) {
       var MeteorBrownSmallOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_small1");
       var MeteorBrownSmallTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_small2");
       var MeteorGraySmallOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_small1");
@@ -132,17 +134,14 @@ Game.prototype = {
 
   render : function () {
     this.game.debug.text('Host Name:'+this.game.net.getHostName(),32, 150);
-    this.game.debug.spriteInfo(this.players[0], 32, 32);
-    this.game.debug.text('angularVelocity: ' + this.players[0].body.angularVelocity, 32, 200);
-    this.game.debug.text('angularAcceleration: ' + this.players[0].body.angularAcceleration, 32, 232);
-    this.game.debug.text('angularDrag: ' + this.players[0].body.angularDrag, 32, 264);
-    this.game.debug.text('deltaZ: ' + this.players[0].body.deltaZ(), 32, 296);
+    //this.game.debug.spriteInfo(this.players[0], 32, 32);
+    //this.game.debug.text('angularVelocity: ' + this.players[0].body.angularVelocity, 32, 200);
+    //this.game.debug.text('angularAcceleration: ' + this.players[0].body.angularAcceleration, 32, 232);
+    //this.game.debug.text('angularDrag: ' + this.players[0].body.angularDrag, 32, 264);
+    //this.game.debug.text('deltaZ: ' + this.players[0].body.deltaZ(), 32, 296);
     this.game.debug.quadTree(this.game.physics.arcade.quadTree);
-  },
-
-  onInputDown: function () {
-    this.game.state.start('Menu');
   }
+
 };
 
 module.exports = Game;

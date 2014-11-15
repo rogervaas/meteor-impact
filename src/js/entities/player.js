@@ -1,16 +1,15 @@
-var Player = function (sprite, game, x, y) {
+var Player = function (player) {
+    this.playerId = player.playerId;
 
-    Phaser.Sprite.call(this, game, x, y, sprite);
-    game.add.existing(this);
-
-    game.physics.enable(this, Phaser.Physics.ARCADE);
-
+    Phaser.Sprite.call(this, player.game, player.x, player.y, player.sprite);
+    player.game.add.existing(this);
+    player.game.physics.enable(this, Phaser.Physics.ARCADE);
 
     this.anchor.setTo(0.5, 0.5);
     this.scale.setTo(0.5,0.5);
 
-    this.body.drag.set(100);
-    this.body.maxVelocity.set(200);
+    this.body.drag.set(125);
+    this.body.maxVelocity.set(250);
 
     this.playerController();
 };
@@ -22,6 +21,7 @@ Player.prototype.constructor = Player;
  * Automatically called by World.update
  */
 Player.prototype.update = function() {
+
     //
     //if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
     //    this.body.angularVelocity = -200;
@@ -38,54 +38,102 @@ Player.prototype.update = function() {
     //} else {
     //    this.body.acceleration.set(0);
     //}
+
+    this.screenWrap();
 };
 
 Player.prototype.playerController = function () {
     var that = this;
 
-    Sockets.on("client left", function () {
-        that.body.angularVelocity = -200;
+    var angularVelocity = {
+        pause : 0,
+        negative : -200,
+        positive : 200
+    };
+
+    var acceleration = {
+        pause : 0,
+        up : 200,
+        down : -200
+    };
+
+    Sockets.on("client left", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.negative;
+        }
     });
 
-    Sockets.on("client right", function () {
-        that.body.angularVelocity = 200;
+    Sockets.on("client right", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.positive;
+        }
     });
 
-    Sockets.on("client up", function () {
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, 200, that.body.acceleration);
+    Sockets.on("client up", function (data) {
+        if (data.id === that.playerId) {
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.up, that.body.acceleration);
+        }
     });
 
-    Sockets.on("client down", function () {
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, -200, that.body.acceleration);
+    Sockets.on("client down", function (data) {
+        if (data.id === that.playerId) {
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.down, that.body.acceleration);
+        }
     });
 
-    Sockets.on("client left right stop", function () {
-        that.body.angularVelocity = 0;
+    Sockets.on("client left right stop", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.pause;
+        }
     });
 
-    Sockets.on("client up down stop", function () {
-        that.body.acceleration.set(0);
+    Sockets.on("client up down stop", function (data) {
+        if (data.id === that.playerId) {
+            that.body.acceleration.set(acceleration.pause);
+        }
     });
 
-    Sockets.on("client up right", function () {
-        that.body.angularVelocity = 200;
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, 200, that.body.acceleration);
+    Sockets.on("client up right", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.positive;
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.up, that.body.acceleration);
+        }
     });
 
-    Sockets.on("client up left", function () {
-        that.body.angularVelocity = -200;
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, 200, that.body.acceleration);
+    Sockets.on("client up left", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.negative;
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.up, that.body.acceleration);
+        }
     });
 
-    Sockets.on("client down right", function () {
-        that.body.angularVelocity = 200;
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, -200, that.body.acceleration);
+    Sockets.on("client down right", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.positive;
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.down, that.body.acceleration);
+        }
     });
 
-    Sockets.on("client down left", function () {
-        that.body.angularVelocity = -200;
-        that.game.physics.arcade.accelerationFromRotation(that.rotation, -200, that.body.acceleration);
+    Sockets.on("client down left", function (data) {
+        if (data.id === that.playerId) {
+            that.body.angularVelocity = angularVelocity.negative;
+            that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.down, that.body.acceleration);
+        }
     });
+};
+
+Player.prototype.screenWrap = function ( ) {
+    if (this.x < 0) {
+        this.x = this.game.width;
+    } else if (this.x > this.game.width) {
+        this.x = 0;
+    }
+
+    if (this.y < 0) {
+        this.y = this.game.height;
+    } else if (this.y > this.game.height) {
+        this.y = 0;
+    }
 };
 
 Player.prototype.fire = function () {

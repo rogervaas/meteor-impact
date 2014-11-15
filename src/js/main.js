@@ -23,7 +23,7 @@ var keyCodes = {left : 37, up : 38, right : 39, down: 40};
 var map = {37: false, 38: false, 39: false, 40: false};
 
 bean.on(document, "keydown", function (e) {
-    console.log("work key");
+
     if (e.keyCode === keyCodes.left) {
         Sockets.emit("server left", null);
     } else if (e.keyCode === keyCodes.up) {
