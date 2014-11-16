@@ -1,5 +1,8 @@
 var Player = function (player) {
     this.playerId = player.playerId;
+    this.bullet;
+    this.bulletTime = 0;
+    this.bullets = player.game.add.group();
 
     Phaser.Sprite.call(this, player.game, player.x, player.y, player.sprite);
     player.game.add.existing(this);
@@ -11,15 +14,22 @@ var Player = function (player) {
     this.body.drag.set(125);
     this.body.maxVelocity.set(250);
 
+    this.bullets.enableBody = true;
+    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    this.bullets.createMultiple(40, 'laserBlueOne');
+    this.bullets.setAll('anchor.x', 0.5);
+    this.bullets.setAll('anchor.y', 0.5);
+    this.bullets.setAll("scale.x", 0.5);
+    this.bullets.setAll("scale.y", 0.5);
+    this.bullets.setAll('outOfBoundsKill', true);
+    this.bullets.setAll('checkWorldBounds', true);
+
     this.playerController();
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
 Player.prototype.constructor = Player;
 
-/**
- * Automatically called by World.update
- */
 Player.prototype.update = function() {
 
     //
@@ -38,6 +48,10 @@ Player.prototype.update = function() {
     //} else {
     //    this.body.acceleration.set(0);
     //}
+
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+        this.fire();
+    }
 
     this.screenWrap();
 };
@@ -120,6 +134,12 @@ Player.prototype.playerController = function () {
             that.game.physics.arcade.accelerationFromRotation(that.rotation, acceleration.down, that.body.acceleration);
         }
     });
+
+    Sockets.on("client shoot", function (data) {
+        if (data.id === that.playerId && that.alive) {
+            that.fire();
+        }
+    });
 };
 
 Player.prototype.screenWrap = function ( ) {
@@ -137,17 +157,15 @@ Player.prototype.screenWrap = function ( ) {
 };
 
 Player.prototype.fire = function () {
-    if (this.game.time.now > bulletTime)
-    {
-        bullet = bullets.getFirstExists(false);
+    if (this.game.time.now > this.bulletTime) {
+        this.bullet = this.bullets.getFirstExists(false);
 
-        if (bullet)
-        {
-            bullet.reset(sprite.body.x + 16, sprite.body.y + 16);
-            bullet.lifespan = 2000;
-            bullet.rotation = sprite.rotation;
-            game.physics.arcade.velocityFromRotation(sprite.rotation, 400, bullet.body.velocity);
-            bulletTime = game.time.now + 50;
+        if (this.bullet) {
+            this.bullet.reset(this.body.x + 25, this.body.y + 25);
+            this.bullet.lifespan = 2000;
+            this.bullet.rotation = this.rotation;
+            this.game.physics.arcade.velocityFromRotation(this.rotation, 400, this.bullet.body.velocity);
+            this.bulletTime = this.game.time.now + 200;
         }
     }
 };

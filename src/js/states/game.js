@@ -23,6 +23,25 @@ Game.prototype = {
     this.game.physics.arcade.collide(this.players, this.players);
     this.game.physics.arcade.collide(this.meteors, this.meteors);
 
+    for (var i = 0; i < this.players.length; i++) {
+      this.game.physics.arcade.overlap(this.players[i].bullets, this.meteors, function (bullet, meteor) {
+        bullet.kill();
+        meteor.kill();
+      }, null, this);
+    }
+
+    for (var i = 0; i < this.players.length; i++) {
+      for (var j = 0; j < this.players.length; j++) {
+        if (this.players[i].playerId === this.players[j].playerId) {
+          continue;
+        }
+        this.game.physics.arcade.overlap(this.players[i].bullets, this.players[j], function (bullet, player) {
+          bullet.kill();
+          player.kill();
+        }, null, this);
+      }
+    }
+
     this.meteors.forEachAlive(function (child) {
       if (child.x < 0) {
         child.x = this.width;
@@ -60,17 +79,6 @@ Game.prototype = {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
   },
 
-  // Disable the input taken from the keyboard since this is not a feature
-  //setInput : function () {
-  //  this.game.input.keyboard.addKeyCapture([
-  //    Phaser.Keyboard.LEFT,
-  //    Phaser.Keyboard.RIGHT,
-  //    Phaser.Keyboard.UP,
-  //    Phaser.Keyboard.DOWN,
-  //    Phaser.Keyboard.SPACEBAR
-  //  ]);
-  //},
-
   setPlayers : function () {
     var that = this;
 
@@ -87,8 +95,7 @@ Game.prototype = {
     Sockets.on("client disconnected", function (data) {
       for (var i = 0; i < that.players.length; i++) {
         if (that.players[i].playerId === data.id) {
-          console.log(that.players);
-          that.players[i].kill();
+          that.players[i].destroy(true);
           that.players.splice(i, 1);
         }
       }
@@ -133,12 +140,6 @@ Game.prototype = {
   },
 
   render : function () {
-    this.game.debug.text('Host Name:'+this.game.net.getHostName(),32, 150);
-    //this.game.debug.spriteInfo(this.players[0], 32, 32);
-    //this.game.debug.text('angularVelocity: ' + this.players[0].body.angularVelocity, 32, 200);
-    //this.game.debug.text('angularAcceleration: ' + this.players[0].body.angularAcceleration, 32, 232);
-    //this.game.debug.text('angularDrag: ' + this.players[0].body.angularDrag, 32, 264);
-    //this.game.debug.text('deltaZ: ' + this.players[0].body.deltaZ(), 32, 296);
     this.game.debug.quadTree(this.game.physics.arcade.quadTree);
   }
 

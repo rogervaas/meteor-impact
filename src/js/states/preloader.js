@@ -45,6 +45,10 @@ Preloader.prototype = {
     this.load.image("meteorGrey_tiny1", "assets/meteors/meteorGrey_tiny1.png");
     this.load.image("meteorGrey_tiny2", "assets/meteors/meteorGrey_tiny2.png");
 
+    // Loading Bullets
+    this.load.image("laserBlueOne", "assets/spaceships/bullets/laserBlue01.png");
+
+
   },
 
   create: function () {

@@ -84,6 +84,11 @@ io.on('connection', function(socket){
     socket.broadcast.emit("client down right", player);
   });
 
+  socket.on("server shoot", function () {
+    socket.emit("client shoot", player);
+    socket.broadcast.emit("client shoot", player);
+  });
+
 });
 
 http.listen((process.env.PORT || 3000), function(){
