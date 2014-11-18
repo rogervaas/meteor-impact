@@ -19,9 +19,6 @@ io.on('connection', function(socket){
     id : socket.id
   };
 
-  socket.emit("client connected", player);
-  socket.broadcast.emit("client connected", player);
-
   console.log("User: " + socket.id + " Connected");
 
   socket.on('disconnect', function(){
