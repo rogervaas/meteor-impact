@@ -1,4 +1,5 @@
 var Player = function (player) {
+    this.playerNr = player.playerNr;
     this.playerId = player.playerId;
     this.bullet;
     this.bulletTime = 0;

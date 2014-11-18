@@ -18,6 +18,7 @@ Game.prototype = {
   },
 
   update: function () {
+    var that = this;
 
     this.game.physics.arcade.collide(this.players, this.meteors);
     this.game.physics.arcade.collide(this.players, this.players);
@@ -27,7 +28,7 @@ Game.prototype = {
       this.game.physics.arcade.overlap(this.players[i].bullets, this.meteors, function (bullet, meteor) {
         bullet.kill();
         meteor.kill();
-      }, null, this);
+      }, null, this.players[i]);
     }
 
     for (var i = 0; i < this.players.length; i++) {
@@ -83,7 +84,9 @@ Game.prototype = {
     var that = this;
 
     Sockets.on("client new player", function (data) {
+
       that.players.push(new Player({
+        playerNr : that.players.length + 1,
         playerId : data.id,
         sprite : "spaceship",
         game : that.game,
