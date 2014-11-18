@@ -140,7 +140,7 @@ Game.prototype = {
   },
 
   render : function () {
-    this.game.debug.quadTree(this.game.physics.arcade.quadTree);
+    // this.game.debug.quadTree(this.game.physics.arcade.quadTree);
   }
 
 };
