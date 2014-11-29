@@ -10,6 +10,10 @@ Menu.prototype = {
     this.game.add.tileSprite(0, 0, screen.width, screen.height, Utils.backgrounds[Utils.randomNumber(0,3)]);
     this.displayText();
     this.input.onDown.add(this.onDown, this);
+
+    this.introAudio = this.game.add.audio("intro");
+    this.introAudio.play();
+
   },
 
   update: function () {

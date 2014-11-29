@@ -28,7 +28,8 @@ Game.prototype = {
       this.game.physics.arcade.overlap(this.players[i].bullets, this.meteors, function (bullet, meteor) {
         bullet.kill();
         meteor.kill();
-      }, null, this.players[i]);
+        this.meteorAudio.play();
+      }, null, that);
     }
 
     for (var i = 0; i < this.players.length; i++) {
@@ -39,6 +40,7 @@ Game.prototype = {
         this.game.physics.arcade.overlap(this.players[i].bullets, this.players[j], function (bullet, player) {
           bullet.kill();
           player.kill();
+          that.playerHitAudio.play();
         }, null, this);
       }
     }
@@ -78,17 +80,21 @@ Game.prototype = {
     this.game.renderer.clearBeforeRender = false;
     this.game.renderer.roundPixels = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.playingAudio = this.game.add.audio("playing");
+    this.playingAudio.volume = 0.3;
+    this.playingAudio.play();
   },
 
   setPlayers : function () {
     var that = this;
 
-    Sockets.on("client new player", function (data) {
+    this.playerHitAudio = this.game.add.audio("playerHit");
 
+    Sockets.on("client new player", function (data) {
       that.players.push(new Player({
         playerNr : that.players.length + 1,
         playerId : data.id,
-        sprite : "spaceship",
+        sprite : Utils.randomNumber(0,11),
         game : that.game,
         x : that.game.world.randomX,
         y : that.game.world.randomY
@@ -96,17 +102,17 @@ Game.prototype = {
     });
 
     Sockets.on("client disconnected", function (data) {
-      for (var i = 0; i < that.players.length; i++) {
+      that.players.forEach(function (i) {
         if (that.players[i].playerId === data.id) {
           that.players[i].destroy(true);
           that.players.splice(i, 1);
         }
-      }
+      });
     });
 
-    for (var i = 0; i < this.players.length; i++) {
+    that.players.forEach(function (i) {
       that.players[i].health = 100;
-    }
+    });
   },
 
   setMeteors : function () {
@@ -114,6 +120,7 @@ Game.prototype = {
     this.meteors = this.game.add.group();
     this.meteors.enableBody = true;
     this.meteors.physicsBodyType = Phaser.Physics.ARCADE;
+    this.meteorAudio = this.game.add.audio('trash');
 
     for (var i = 0; i < this.game.rnd.between(1,2); i++) {
       var MeteorBrownBigOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_big1");
@@ -126,14 +133,14 @@ Game.prototype = {
       var MeteorGrayBigFour = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_big1");
     }
 
-    for (var i = 0; i < this.game.rnd.between(1,3); i++) {
+    for (var k = 0; k < this.game.rnd.between(1,3); k++) {
       var MeteorBrownMediumOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_med1");
       var MeteorBrownMediumTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_med3");
       var MeteorGrayMediumOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_med1");
       var MeteorGrayMediumTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_med2");
     }
 
-    for (var i = 0; i < this.game.rnd.between(1,4); i++) {
+    for (var l = 0; l < this.game.rnd.between(1,4); l++) {
       var MeteorBrownSmallOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_small1");
       var MeteorBrownSmallTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorBrown_small2");
       var MeteorGraySmallOne = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_small1");

@@ -1,11 +1,32 @@
 var Player = function (player) {
+    var playerShip = [
+      "playerShip1_blue",
+      "playerShip1_green",
+      "playerShip1_orange",
+      "playerShip1_red",
+      "playerShip2_blue",
+      "playerShip2_green",
+      "playerShip2_orange",
+      "playerShip2_red",
+      "playerShip3_blue",
+      "playerShip3_green",
+      "playerShip3_orange",
+      "playerShip3_red"
+    ];
+
+    // Player Reference
     this.playerNr = player.playerNr;
     this.playerId = player.playerId;
-    this.bullet;
-    this.bulletTime = 0;
-    this.bullets = player.game.add.group();
 
-    Phaser.Sprite.call(this, player.game, player.x, player.y, player.sprite);
+    // Bullet Reference
+    this.bullet = null;
+    this.bullets = player.game.add.group();
+    this.bulletTime = 0;
+
+    // Audio Reference
+    this.laserAudio = player.game.add.audio('laser');
+
+    Phaser.Sprite.call(this, player.game, player.x, player.y, playerShip[player.sprite]);
     player.game.add.existing(this);
     player.game.physics.enable(this, Phaser.Physics.ARCADE);
 
@@ -15,6 +36,7 @@ var Player = function (player) {
     this.body.drag.set(125);
     this.body.maxVelocity.set(250);
 
+    // We create the bullets.
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
     this.bullets.createMultiple(40, 'laserBlueOne');
@@ -25,34 +47,15 @@ var Player = function (player) {
     this.bullets.setAll('outOfBoundsKill', true);
     this.bullets.setAll('checkWorldBounds', true);
 
+    // Player Controller
     this.playerController();
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
+
 Player.prototype.constructor = Player;
 
 Player.prototype.update = function() {
-
-    //
-    //if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-    //    this.body.angularVelocity = -200;
-    //} else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-    //    this.body.angularVelocity = 200;
-    //} else {
-    //    this.body.angularVelocity = 0;
-    //}
-    //
-    //if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-    //    this.game.physics.arcade.accelerationFromRotation(this.rotation, 200, this.body.acceleration);
-    //} else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-    //    this.game.physics.arcade.accelerationFromRotation(this.rotation, -200, this.body.acceleration);
-    //} else {
-    //    this.body.acceleration.set(0);
-    //}
-
-    if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-        this.fire();
-    }
 
     this.screenWrap();
 };
@@ -167,6 +170,7 @@ Player.prototype.fire = function () {
             this.bullet.rotation = this.rotation;
             this.game.physics.arcade.velocityFromRotation(this.rotation, 400, this.bullet.body.velocity);
             this.bulletTime = this.game.time.now + 200;
+            this.laserAudio.play();
         }
     }
 };
