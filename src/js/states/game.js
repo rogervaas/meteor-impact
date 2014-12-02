@@ -102,12 +102,12 @@ Game.prototype = {
     });
 
     Sockets.on("client disconnected", function (data) {
-      that.players.forEach(function (i) {
+      for (var i = 0; i < that.players.length; i++) {
         if (that.players[i].playerId === data.id) {
           that.players[i].destroy(true);
           that.players.splice(i, 1);
         }
-      });
+      }
     });
 
     that.players.forEach(function (i) {
