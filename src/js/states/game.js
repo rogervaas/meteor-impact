@@ -106,7 +106,9 @@ Game.prototype = {
         if (that.players[i].playerId === data.id) {
           that.players[i].destroy(true);
           that.players.splice(i, 1);
+          console.log("disconnecting");
         }
+        console.log("trying to disconnect");
       }
     });
 
