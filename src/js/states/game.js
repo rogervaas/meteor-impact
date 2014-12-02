@@ -99,6 +99,8 @@ Game.prototype = {
         x : that.game.world.randomX,
         y : that.game.world.randomY
       }));
+      console.log(data.id);
+      console.log(that.players);
     });
 
     Sockets.on("client disconnected", function (data) {
@@ -106,6 +108,7 @@ Game.prototype = {
         if (that.players[i].playerId === data.id) {
           that.players[i].destroy(true);
           that.players.splice(i, 1);
+          console.log(that.players[i].playerId);
           console.log("disconnecting");
         }
         console.log("trying to disconnect");
