@@ -83,7 +83,6 @@ Game.prototype = {
     this.playingAudio = this.game.add.audio("playing");
     this.playingAudio.volume = 0.3;
     this.playingAudio.play();
-    this.playingAudio.loop();
   },
 
   setPlayers : function () {
