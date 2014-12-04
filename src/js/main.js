@@ -4,6 +4,7 @@ window.Utils = require('./utils');
 window.Sockets = io();
 
 if (document.getElementById("meteorimpact-game")) {
+
     var game = new Phaser.Game(Utils.getScreenWidth(), Utils.getScreenHeight(), Phaser.AUTO, 'meteorimpact-game');
 
     window.playerState = {
@@ -17,4 +18,5 @@ if (document.getElementById("meteorimpact-game")) {
     game.state.add('Game', require('./states/game'));
 
     game.state.start('Boot');
+
 }

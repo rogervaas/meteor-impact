@@ -18,21 +18,19 @@ Game.prototype = {
   },
 
   update: function () {
-    var that = this;
 
     this.game.physics.arcade.collide(this.players, this.meteors);
     this.game.physics.arcade.collide(this.players, this.players);
     this.game.physics.arcade.collide(this.meteors, this.meteors);
 
     for (var i = 0; i < this.players.length; i++) {
+
       this.game.physics.arcade.overlap(this.players[i].bullets, this.meteors, function (bullet, meteor) {
         bullet.kill();
         meteor.kill();
         this.meteorAudio.play();
-      }, null, that);
-    }
+      }, null, this);
 
-    for (var i = 0; i < this.players.length; i++) {
       for (var j = 0; j < this.players.length; j++) {
         if (this.players[i].playerId === this.players[j].playerId) {
           continue;
@@ -40,9 +38,10 @@ Game.prototype = {
         this.game.physics.arcade.overlap(this.players[i].bullets, this.players[j], function (bullet, player) {
           bullet.kill();
           player.kill();
-          that.playerHitAudio.play();
+          this.playerHitAudio.play();
         }, null, this);
       }
+
     }
 
     this.meteors.forEachAlive(function (child) {
@@ -82,6 +81,7 @@ Game.prototype = {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.playingAudio = this.game.add.audio("playing");
     this.playingAudio.volume = 0.3;
+    this.playingAudio.loop = true;
     this.playingAudio.play();
   },
 
@@ -143,10 +143,6 @@ Game.prototype = {
       var MeteorGraySmallTwo = this.meteors.create(this.game.world.randomX, this.game.world.randomY, "meteorGrey_small2");
     }
 
-  },
-
-  render : function () {
-    // this.game.debug.quadTree(this.game.physics.arcade.quadTree);
   }
 
 };

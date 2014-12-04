@@ -1,4 +1,5 @@
 var Player = function (player) {
+
     var playerShip = [
       "playerShip1_blue",
       "playerShip1_green",

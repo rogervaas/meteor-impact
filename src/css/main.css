@@ -1,6 +1,7 @@
 * {
   -webkit-user-select: none;
   user-select: none;
+  box-sizing: border-box;
 }
 
 html, body {
@@ -12,11 +13,8 @@ html, body {
   margin: 0;
 }
 
-.game {
-  width: 100%;
+html, .mobile {
   height: 100%;
-}
-
-h1,h2,h3 {
-    color: #fff;
+  min-height: 100%;
+  overflow: hidden;
 }

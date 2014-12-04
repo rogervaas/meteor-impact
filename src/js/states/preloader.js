@@ -8,6 +8,7 @@ module.exports = Preloader;
 Preloader.prototype = {
 
   preload: function () {
+
     var x = this.game.width / 2;
     var y = this.game.height / 2;
     this.asset = this.add.sprite(x, y, 'preloader');
